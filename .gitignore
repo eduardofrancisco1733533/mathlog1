@@ -1,4 +1,4 @@
-*.pyc
 __pycache__/
-*.sqlite3
 migrations/
+db.sqlite3
+*.pyc
