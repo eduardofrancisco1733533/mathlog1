@@ -7,4 +7,5 @@ urlpatterns = [
     path('bienvenido/', views.bienvenido_view, name='bienvenido'),
     path('logout/', views.logout_view, name='logout'),
     path('prueba/', views.some_view, name='prueba'),
+    path('drag_drop_view/', views.drag_drop_view, name='drag_drop_view'),
 ]

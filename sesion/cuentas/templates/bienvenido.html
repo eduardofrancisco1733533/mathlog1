@@ -6,6 +6,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <h2>Bienvenido, {{ request.user.username }}</h2>
+            <a href="{% url 'drag_drop_view' %}" class="btn btn-primary">Test dragDrop</a>
             <a href="{% url 'logout' %}" class="btn btn-danger">Cerrar Sesión</a>
         </div>
     </div>

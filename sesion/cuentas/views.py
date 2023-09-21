@@ -38,3 +38,7 @@ def bienvenido_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+def drag_drop_view(request):
+    return render(request, 'drag_and_drop.html')
+
