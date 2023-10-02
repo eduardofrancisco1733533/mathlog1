@@ -31,3 +31,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+class Ecuacion(models.Model):
+    expresion = models.CharField(max_length=255)
+

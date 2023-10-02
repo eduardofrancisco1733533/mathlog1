@@ -8,4 +8,5 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('prueba/', views.some_view, name='prueba'),
     path('drag_drop_view/', views.drag_drop_view, name='drag_drop_view'),
+    path('resolver/', views.resolver_ecuacion, name='resolver_ecuacion'),
 ]
