@@ -1,7 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, EcuacionForm
 from django.contrib import messages
+from sympy import symbols, Eq, solve, sympify
+import re
+
+def agregar_multiplicacion_implicita(expr):
+    # Encuentra patrones donde un número está seguido de una letra, como '3x' y reemplaza con '3*x'
+    return re.sub(r'(\d)([a-zA-Z])', r'\1*\2', expr)
 
 def some_view(request):
     messages.success(request, "Esto es una prueba")
@@ -54,3 +60,31 @@ def logout_view(request):
 
 def drag_drop_view(request):
     return render(request, 'drag_and_drop.html')
+
+def ingresar_ecuacion(request):
+    if request.method == "POST":
+        form = EcuacionForm(request.POST)
+        if form.is_valid():
+            ecuacion_str = form.cleaned_data['ecuacion']
+
+            x = symbols('x')
+
+            # Modifica la ecuación para agregar multiplicaciones implícitas
+            ecuacion_str = agregar_multiplicacion_implicita(ecuacion_str)
+
+            try:
+                # Convertir la ecuación string a una ecuación SymPy usando sympify
+                ecuacion_expr = sympify(ecuacion_str)
+                
+                # Intentar resolver la ecuación
+                sol = solve(Eq(ecuacion_expr, 0), x)
+                mensaje = "Ecuación resuelta exitosamente!"
+            except Exception as e:
+                mensaje = f"No se pudo resolver la ecuación. Error: {str(e)}"
+
+            return render(request, 'resultado.html', {'mensaje': mensaje})
+
+    else:
+        form = EcuacionForm()
+
+    return render(request, 'ingresar_ecuacion.html', {'form': form})
