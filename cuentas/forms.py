@@ -1,9 +1,10 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser, Ecuacion
+from .models import CustomUser, Ecuacion, Salon
 import re
 
 class CustomUserCreationForm(UserCreationForm):
+    role = forms.ChoiceField(choices=CustomUser.ROLES, required=True, label='Rol', widget=forms.RadioSelect)
 
     class Meta:
         model = CustomUser
@@ -43,3 +44,11 @@ class EcuacionForm(forms.ModelForm):
     class Meta:
         model = Ecuacion
         fields = ['ecuacion']
+
+class SalonForm(forms.ModelForm):
+    class Meta:
+        model = Salon
+        fields = ['nombre']
+
+class AgregarEstudianteForm(forms.Form):
+    estudiante = forms.ModelChoiceField(queryset=CustomUser.objects.all())

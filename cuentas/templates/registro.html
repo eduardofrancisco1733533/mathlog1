@@ -84,7 +84,19 @@
                 {% if form.password2.errors %}
                     <div class="text-danger">{{ form.password2.errors.0 }}</div>
                 {% endif %}
-                
+
+                <label>¿Eres profesor o estudiante?</label>
+                {% for choice in form.role.field.choices %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="{{ form.role.name }}" id="role_{{ choice.0 }}" value="{{ choice.0 }}" {% if form.role.value == choice.0 %}checked{% endif %}>
+                        <label class="form-check-label" for="role_{{ choice.0 }}">
+                            {{ choice.1 }}
+                        </label>
+                    </div>
+                {% endfor %}
+                {% if form.role.errors %}
+                    <div class="text-danger">{{ form.role.errors.0 }}</div>
+                {% endif %}
                 <button type="submit" class="btn btn-primary w-100">Registrar</button>
             </form>
             <div class="mt-3 text-center">

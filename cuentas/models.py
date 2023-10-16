@@ -18,11 +18,16 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, username, password, **extra_fields)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    ROLES = (
+        ('STUDENT', 'Estudiante'),
+        ('TEACHER', 'Profesor'),
+    )
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=30, unique=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    role = models.CharField(max_length=7, choices=ROLES, null=True, blank=True)  # campo de rol
 
     objects = CustomUserManager()
 
@@ -34,3 +39,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
 class Ecuacion(models.Model):
     ecuacion = models.TextField()
+
+class Salon(models.Model):
+    nombre = models.CharField(max_length=200)
+    profesor = models.ForeignKey(CustomUser, related_name='clases_creadas', on_delete=models.CASCADE)
+    estudiantes = models.ManyToManyField(CustomUser, related_name='clases_asignadas')

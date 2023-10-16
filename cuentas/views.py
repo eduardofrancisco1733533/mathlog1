@@ -1,6 +1,9 @@
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from .forms import CustomUserCreationForm, EcuacionForm
+from django.contrib.auth.decorators import login_required
+from cuentas.models import Salon
+from .forms import AgregarEstudianteForm, CustomUserCreationForm, EcuacionForm, SalonForm
 from django.contrib import messages
 from sympy import symbols, Eq, solve, sympify
 import re
@@ -88,3 +91,39 @@ def ingresar_ecuacion(request):
         form = EcuacionForm()
 
     return render(request, 'ingresar_ecuacion.html', {'form': form})
+
+@login_required
+def crear_ecuacion(request):
+    if request.user.role != "TEACHER":
+        return HttpResponseForbidden("No tienes permiso para acceder a esta página.")
+    return render(request, 'ingresar_ecuacion.html')
+
+@login_required
+def crear_salon(request):
+    if request.user.role != "TEACHER":
+        return HttpResponseForbidden("No tienes permiso para acceder a esta página.")
+
+    if request.method == "POST":
+        form = SalonForm(request.POST)
+        if form.is_valid():
+            salon = form.save(commit=False)
+            salon.profesor = request.user
+            salon.save()
+            return redirect('agregar_estudiante')  # TODO: cambiar redirect
+    else:
+        form = SalonForm()
+
+    return render(request, 'class.html', {'form': form})
+
+def agregar_estudiante(request, salon_id):
+    salon = Salon.objects.get(id=salon_id)
+    if request.method == "POST":
+        form = AgregarEstudianteForm(request.POST)
+        if form.is_valid():
+            estudiante = form.cleaned_data['estudiante']
+            salon.estudiantes.add(estudiante)
+            return redirect('nombre_vista_listar_salones')
+    else:
+        form = AgregarEstudianteForm()
+
+    return render(request, 'agregar_estudiante.html', {'form': form, 'salon': salon})
