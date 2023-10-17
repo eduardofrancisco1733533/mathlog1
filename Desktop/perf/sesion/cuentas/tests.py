@@ -1,0 +1,51 @@
+from django.test import TestCase
+from django.urls import reverse
+from cuentas.models import CustomUser
+
+class CustomUserTests(TestCase):
+    def setUp(self):
+        self.username = 'testuser'
+        self.email = 'test@example.com'
+        self.password = 'securepassword'
+        self.register_url = reverse('registro')
+        self.login_url = reverse('login') 
+
+    def test_register_valid_user(self):
+        response = self.client.post(self.register_url, {
+            'username': self.username,
+            'email': self.email,
+            'password1': self.password,
+            'password2': self.password,
+        })
+
+        # Verificar que la respuesta sea un redirect
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login')) 
+
+        # Verificar que el usuario fue creado
+        users_count = CustomUser.objects.filter(email=self.email).count()
+        self.assertEqual(users_count, 1)
+
+    def test_login_valid_user(self):
+        # Primero, crearemos un usuario en la base de datos.
+        CustomUser.objects.create_user(email=self.email, username=self.username, password=self.password)
+        
+        response = self.client.post(self.login_url, {
+            'email': self.email,
+            'password': self.password,
+        })
+        
+        # Verificar que la respuesta sea un redirect
+        self.assertEqual(response.status_code, 302)
+        
+        # Supongamos que, después de un inicio de sesión exitoso, redirigimos al usuario a la página de inicio o dashboard.
+        self.assertRedirects(response, reverse('bienvenido'))
+
+        
+        
+
+    
+
+
+    
+

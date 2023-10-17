@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+#dropzone {
+    background-color: lightgray;
+    height: 200px;
+}
+#leftZone{
+    background-color: lightcyan;
+    height: 200px;
+}
+
+#draggableDiv {
+    height: 200px;
+    background-color: blue;
+}
+
+</style>
+<div class="container mt-5">
+    <div class="row">
+        <!-- Primera mitad de la pantalla -->
+        <div class="col-md-6 p-0">
+            <div id="leftZone" ondrop="drop(event)" ondragover="allowDrop(event)">
+                Zona inicial
+                <div id="draggableDiv" draggable="true" ondragstart="startDrag(event);">
+                    Arrastra este div
+                </div>
+            </div>
+        </div>
+        
+        <!-- Segunda mitad de la pantalla -->
+        <div class="col-md-6 p-0 h-100 d-inline-block">
+            <div id="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)">
+                Zona donde soltar el div
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function startDrag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    var draggableElement = document.getElementById(data);
+
+    // Comprobar si se soltó en la zona izquierda o derecha basándonos en la posición
+    if (ev.clientX < window.innerWidth / 2) {
+        draggableElement.style.backgroundColor = 'blue'; 
+        document.getElementById("leftZone").appendChild(draggableElement);
+    } else {
+        draggableElement.style.backgroundColor = 'red';
+        document.getElementById("dropzone").appendChild(draggableElement);
+    }
+    if (ev.clientX > window.innerWidth / 2) {
+        draggableElement.style.backgroundColor = 'blue'; 
+        document.getElementById("dropzone").appendChild(draggableElement);
+    } else {
+        draggableElement.style.backgroundColor = 'red';
+        document.getElementById("leftZone").appendChild(draggableElement);
+    }
+}
+
+</script>
+{% endblock %}

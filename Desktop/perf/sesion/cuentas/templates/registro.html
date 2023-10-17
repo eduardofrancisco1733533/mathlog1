@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+<style>
+    body {
+        background-color: #e6f7ff;
+    }
+
+    .register-container {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 30px; /* Aumentar el padding */
+    }
+
+    .btn-primary {
+        background-color: #007BFF;
+        border: none;
+        margin-top: 20px; /* Añadir margen superior */
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    a {
+        color: #007BFF;
+    }
+
+    a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+
+    /* Estilos adicionales */
+    form p {
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        border-radius: 5px;
+        box-shadow: none;
+    }
+
+    .form-control:focus {
+        border-color: #007BFF;
+        box-shadow: 0 0 5px rgba(0, 128, 255, 0.5);
+    }
+
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 register-container">
+            <h2 class="mb-4 text-center">Registro</h2>
+            <form method="post">
+                {% csrf_token %}
+                
+                <label for="{{ form.email.id_for_label }}">Correo electrónico:</label>
+                {{ form.email|add_class:"form-control mb-3" }}
+                {% if form.email.errors %}
+                    <div class="text-danger">{{ form.email.errors.0 }}</div>
+                {% endif %}
+                <small class="text-muted">Debes usar un correo con dominio outlook.com, gmail.com o hotmail.com.</small>
+                
+                <label for="{{ form.username.id_for_label }}">Nombre de usuario:</label>
+                {{ form.username|add_class:"form-control mb-3" }}
+                {% if form.username.errors %}
+                    <div class="text-danger">{{ form.username.errors.0 }}</div>
+                {% endif %}
+                
+                <label for="{{ form.password1.id_for_label }}">Contraseña:</label>
+                {{ form.password1|add_class:"form-control mb-3" }}
+                {% if form.password1.errors %}
+                    <div class="text-danger">{{ form.password1.errors.0 }}</div>
+                {% endif %}
+                <small class="text-muted">Mínimo 6 caracteres, al menos 1 mayúscula, 2 números y 1 caracter especial.</small>
+                
+                <label for="{{ form.password2.id_for_label }}">Confirmar contraseña:</label>
+                {{ form.password2|add_class:"form-control mb-3" }}
+                {% if form.password2.errors %}
+                    <div class="text-danger">{{ form.password2.errors.0 }}</div>
+                {% endif %}
+                
+                <button type="submit" class="btn btn-primary w-100">Registrar</button>
+            </form>
+            <div class="mt-3 text-center">
+                ¿Ya tienes una cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

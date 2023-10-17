@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Perfil de {{ request.user.username }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Actualizar Icono</button>
+    </form>
+
+    <div class="mt-5">
+        <h4>Información del Usuario</h4>
+        <p><strong>Icono:</strong> <img src="{{ request.user.profile_icon.url }}" alt="Icono" width="100"></p>
+        <p><strong>Puntos:</strong> {{ request.user.points }}</p>
+        <p><strong>Clase:</strong> {{ request.user.user_class }}</p>
+    </div>
+</div>
+{% endblock %}
