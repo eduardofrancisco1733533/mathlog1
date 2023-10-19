@@ -51,4 +51,4 @@ class SalonForm(forms.ModelForm):
         fields = ['nombre']
 
 class AgregarEstudianteForm(forms.Form):
-    estudiante = forms.ModelChoiceField(queryset=CustomUser.objects.all())
+    estudiante = forms.ModelChoiceField(queryset=CustomUser.objects.filter(role="STUDENT"))

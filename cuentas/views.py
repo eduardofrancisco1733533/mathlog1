@@ -1,4 +1,4 @@
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -109,10 +109,9 @@ def crear_salon(request):
             salon = form.save(commit=False)
             salon.profesor = request.user
             salon.save()
-            return redirect('agregar_estudiante')  # TODO: cambiar redirect
+            return redirect('agregar_estudiante', salon_id=salon.id)  # Pasar el ID del salón como argumento
     else:
         form = SalonForm()
-
     return render(request, 'class.html', {'form': form})
 
 def agregar_estudiante(request, salon_id):
@@ -121,9 +120,37 @@ def agregar_estudiante(request, salon_id):
         form = AgregarEstudianteForm(request.POST)
         if form.is_valid():
             estudiante = form.cleaned_data['estudiante']
+            print(estudiante)
             salon.estudiantes.add(estudiante)
-            return redirect('nombre_vista_listar_salones')
+            return redirect('mis_salones', salon_id=salon.id)
     else:
         form = AgregarEstudianteForm()
-
     return render(request, 'agregar_estudiante.html', {'form': form, 'salon': salon})
+
+@login_required
+def mis_salones(request): 
+    # Filtramos los salones donde el profesor es el usuario actual
+    salones = Salon.objects.filter(profesor=request.user)
+
+    context = {
+        'salones': salones,
+    }
+
+    return render(request, 'mis_clases.html', context)
+
+@login_required
+def detalle_salon(request, salon_id): 
+    try:
+        salon = Salon.objects.get(id=salon_id, profesor=request.user)
+    except Salon.DoesNotExist:
+        return HttpResponseNotFound("Salón no encontrado.")
+
+    context = {
+        'salon': salon,
+        'estudiantes': salon.estudiantes.all()
+    }
+
+    return render(request, 'detalle_salon.html', context)
+
+
+

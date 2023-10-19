@@ -13,5 +13,9 @@ urlpatterns = [
     path('crearEcuacion/', views.crear_ecuacion, name='crear_ecuacion'),
     path('crear/', views.crear_salon, name='crear_salon'),
     path('agregar_estudiante/<int:salon_id>/', views.agregar_estudiante, name='agregar_estudiante'),
+    path('misClases/', views.mis_salones, name='mis_salones'),
+    path('detalleSalon/<int:salon_id>/', views.detalle_salon, name='detalle_salon'),
+
+
 
 ]
