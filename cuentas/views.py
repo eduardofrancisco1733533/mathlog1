@@ -119,13 +119,14 @@ def agregar_estudiante(request, salon_id):
     if request.method == "POST":
         form = AgregarEstudianteForm(request.POST)
         if form.is_valid():
-            estudiante = form.cleaned_data['estudiante']
-            print(estudiante)
-            salon.estudiantes.add(estudiante)
-            return redirect('mis_salones', salon_id=salon.id)
+            estudiantes = form.cleaned_data['estudiantes']
+            for estudiante in estudiantes:
+                salon.estudiantes.add(estudiante)
+            return redirect('mis_salones')
     else:
         form = AgregarEstudianteForm()
     return render(request, 'agregar_estudiante.html', {'form': form, 'salon': salon})
+
 
 @login_required
 def mis_salones(request): 

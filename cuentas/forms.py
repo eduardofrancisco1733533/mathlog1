@@ -51,4 +51,5 @@ class SalonForm(forms.ModelForm):
         fields = ['nombre']
 
 class AgregarEstudianteForm(forms.Form):
-    estudiante = forms.ModelChoiceField(queryset=CustomUser.objects.filter(role="STUDENT"))
+    estudiantes = forms.ModelMultipleChoiceField(queryset=CustomUser.objects.all(), widget=forms.CheckboxSelectMultiple)
+
