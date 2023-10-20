@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from .forms import CustomUserCreationForm, EcuacionForm
+from .forms import CustomUserCreationForm, EcuacionForm, UserProfileForm
 from django.contrib import messages
 from sympy import symbols, Eq, solve, sympify
 import re
@@ -88,3 +88,19 @@ def ingresar_ecuacion(request):
         form = EcuacionForm()
 
     return render(request, 'ingresar_ecuacion.html', {'form': form})
+
+
+
+def profile_view(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            user.profile_icon = form.cleaned_data.get('profile_icon')
+            user.save()
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=user)
+
+    return render(request, 'profile.html', {'form': form})

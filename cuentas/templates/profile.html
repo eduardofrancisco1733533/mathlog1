@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Estilos para el fondo */
+    body {
+        background-color: #e6f7ff;
+    }
+
+    /* Estilos para el contenedor principal */
+    .container {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-top: 30px; /* Añadir margen superior */
+    }
+
+    /* Estilos para el botón */
+    .btn-primary {
+        background-color: #007BFF;
+        border: none;
+        margin-top: 20px;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    /* Estilos para los enlaces */
+    a {
+        color: #007BFF;
+    }
+
+    a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+
+    /* Estilos adicionales */
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    /* Estilos para el formulario */
+    .form-control {
+        border-radius: 5px;
+        box-shadow: none;
+    }
+
+    .form-control:focus {
+        border-color: #007BFF;
+        box-shadow: 0 0 5px rgba(0, 128, 255, 0.5);
+    }
+
+    /* Estilos para la imagen del icono */
+    img.img-thumbnail {
+        border: 2px solid #007BFF;
+        border-radius: 5px;
+        margin-top: 10px;
+        max-width: 150px;
+    }
+
+    /* Estilos para la selección de iconos predefinidos */
+    .form-check-label {
+        display: block;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="container">
+    <h2>Perfil de {{ request.user.username }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.profile_icon.label_tag }}
+        <input type="file" name="{{ form.profile_icon.name }}" class="form-control">
+        <button type="submit" class="btn btn-primary">Actualizar Icono</button>
+    </form>
+
+    <div class="mt-4">
+        <h4>Información del Usuario</h4>
+        <div class="row">
+            <div class="col-md-4">
+                <strong>Icono:</strong><br>
+                {% if request.user.profile_icon %}
+                    <img src="{{ request.user.profile_icon.url }}" alt="Icono" width="100" class="img-thumbnail">
+                {% else %}
+                    <p>No has asignado un icono de perfil.</p>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <strong>Puntos:</strong><br>
+                {{ request.user.points }}
+            </div>
+            <div class="col-md-4">
+                <strong>Clase:</strong><br>
+                {{ request.user.user_class }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

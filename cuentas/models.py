@@ -23,6 +23,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    profile_icon = models.ImageField(upload_to='media/', null=True, blank=True)
+    points = models.IntegerField(default=0, verbose_name='Puntos')
+    user_class = models.CharField(max_length=50, default='', blank=True, verbose_name='Clase de usuario')
 
     objects = CustomUserManager()
 
@@ -31,6 +34,5 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
-    
 class Ecuacion(models.Model):
     ecuacion = models.TextField()
