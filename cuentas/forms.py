@@ -53,3 +53,19 @@ class SalonForm(forms.ModelForm):
 class AgregarEstudianteForm(forms.Form):
     estudiantes = forms.ModelMultipleChoiceField(queryset=CustomUser.objects.all(), widget=forms.CheckboxSelectMultiple)
 
+
+
+class UserProfileForm(forms.ModelForm):
+    ICON_CHOICES = [
+        ('Icono1.jpg', 'Icono 1'),
+        ('icono2.jpg', 'Icono 2'),
+        ('icono3.jpg', 'Icono 3'),
+        # Agrega más opciones para los iconos predefinidos aquí
+    ]
+    
+    profile_icon = forms.ImageField(required=False)
+
+
+    class Meta:
+        model = CustomUser
+        fields = ['profile_icon']

@@ -28,6 +28,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     role = models.CharField(max_length=7, choices=ROLES, null=True, blank=True)  # campo de rol
+    profile_icon = models.ImageField(upload_to='media/', null=True, blank=True)
+    points = models.IntegerField(default=0, verbose_name='Puntos')
+    user_class = models.CharField(max_length=50, default='', blank=True, verbose_name='Clase de usuario')
 
     objects = CustomUserManager()
 
@@ -36,7 +39,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
-    
 class Ecuacion(models.Model):
     ecuacion = models.TextField()
 
@@ -44,3 +46,4 @@ class Salon(models.Model):
     nombre = models.CharField(max_length=200)
     profesor = models.ForeignKey(CustomUser, related_name='clases_creadas', on_delete=models.CASCADE)
     estudiantes = models.ManyToManyField(CustomUser, related_name='clases_asignadas')
+    ecuacion = models.TextField()

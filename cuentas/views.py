@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from cuentas.models import Salon
 from .forms import AgregarEstudianteForm, CustomUserCreationForm, EcuacionForm, SalonForm
+from .forms import CustomUserCreationForm, EcuacionForm, UserProfileForm
 from django.contrib import messages
 from sympy import symbols, Eq, solve, sympify
 import re
@@ -155,3 +156,18 @@ def detalle_salon(request, salon_id):
 
 
 
+
+
+def profile_view(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            user.profile_icon = form.cleaned_data.get('profile_icon')
+            user.save()
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=user)
+
+    return render(request, 'profile.html', {'form': form})
