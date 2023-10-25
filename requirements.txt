@@ -1,2 +1,4 @@
 sympy
 django-widget-tweaks
+django
+Pillow
