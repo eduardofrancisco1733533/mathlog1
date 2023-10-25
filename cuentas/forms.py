@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser, Ecuacion, Salon
+from .models import Actividad, CustomUser, Ecuacion, Salon
 import re
 
 class CustomUserCreationForm(UserCreationForm):
@@ -69,3 +69,20 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['profile_icon']
+
+class ActividadForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(ActividadForm, self).__init__(*args, **kwargs)
+        if self.user:
+            self.fields['ecuaciones'].queryset = Ecuacion.objects.filter(profesor=self.user)
+
+    ecuaciones = forms.ModelMultipleChoiceField(
+        queryset=Ecuacion.objects.all(),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        label="Ecuaciones a resolver"
+    )
+
+    class Meta:
+        model = Actividad
+        fields = ['ecuaciones']

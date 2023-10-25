@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="mb-4">Crear actividad para el salón: {{ salon.nombre }}</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label>{{ form.ecuaciones.label }}</label>
+                    {% for choice in form.ecuaciones %}
+                    <div class="form-check">
+                        {{ choice.tag }}
+                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                            {{ choice.choice_label }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-success">Crear</button>
+            </form>
+            <a href="{% url 'ingresar_ecuacion' salon.id%}" class="btn btn-secondary mt-3">Ingresar nueva ecuación</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -11,6 +11,14 @@
                 <li>{{ estudiante.username }}</li>
             {% endfor %}
             </ul>
+            <h4>Actividades:</h4>
+            <ul>
+                {% for actividad in actividades %}
+                    <li>{{ actividad.fecha_creacion }} - {{ actividad.ecuaciones.count }} ecuaciones</li>
+                {% endfor %}
+                </ul>
+
+                <a href="{% url 'crear_actividad' salon.id %}" class="btn btn-primary">Crear actividad</a>
         </div>
     </div>
 </div>
