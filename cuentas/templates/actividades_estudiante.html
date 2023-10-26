@@ -8,12 +8,33 @@
             Actividad creada el: {{ actividad.fecha_creacion }} <br>
             Ecuaciones:
             <ul>
-            {% for ecuacion in actividad.ecuaciones.all %}
-                <li>{{ ecuacion.ecuacion }}</li>
+                {% for ecuacion in actividad.ecuaciones.all %}
+                <div class="ecuacion">
+                    <span>{{ ecuacion.ecuacion }}</span>
+                    <input type="text" oninput="updateOperation(this)" placeholder="Escribe tu operación...">
+                    <span class="resultado"></span>
+                </div>
             {% endfor %}
             </ul>
         </li>
     {% endfor %}
     </ul>
 </div>
+<script>
+    function updateOperation(inputElement) {
+        let ecuacionElement = inputElement.previousElementSibling;
+        let resultadoElement = inputElement.nextElementSibling;
+        
+        let originalEcuacion = ecuacionElement.textContent;
+        let operacion = inputElement.value;
+        
+        if (operacion.includes("=")) {
+            let partes = operacion.split("=");
+            resultadoElement.textContent = originalEcuacion + " (" + partes[0] + ") = " + partes[1];
+        } else {
+            resultadoElement.textContent = "";
+        }
+    }
+    </script>
+    
 {% endblock %}
