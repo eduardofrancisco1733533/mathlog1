@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Actividades</h2>
+    <ul>
+    {% for actividad in actividades %}
+        <li>
+            Actividad creada el: {{ actividad.fecha_creacion }} <br>
+            Ecuaciones:
+            <ul>
+            {% for ecuacion in actividad.ecuaciones.all %}
+                <li>{{ ecuacion.ecuacion }}</li>
+            {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endblock %}

@@ -195,3 +195,13 @@ def crear_actividad(request, salon_id):
     else:
         form = ActividadForm()
     return render(request, 'crear_actividad.html', {'form': form, 'salon': salon})
+
+def actividades_estudiante(request):
+    # Suponiendo que el estudiante está logueado
+    estudiante = request.user
+    # Obtener los salones a los cuales el estudiante ha sido asignado
+    salones = estudiante.clases_asignadas.all()
+    # Obtener las actividades de esos salones
+    actividades = Actividad.objects.filter(salon__in=salones)
+
+    return render(request, 'actividades_estudiante.html', {'actividades': actividades})
