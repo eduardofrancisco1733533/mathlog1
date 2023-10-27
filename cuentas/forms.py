@@ -57,14 +57,13 @@ class AgregarEstudianteForm(forms.Form):
 
 class UserProfileForm(forms.ModelForm):
     ICON_CHOICES = [
-        ('Icono1.jpg', 'Icono 1'),
-        ('icono2.jpg', 'Icono 2'),
-        ('icono3.jpg', 'Icono 3'),
+        ('1.png', 'Icono 1'),
+        ('2.png', 'Icono 2'),
+        ('3.png', 'Icono 3'),
         # Agrega más opciones para los iconos predefinidos aquí
     ]
     
-    profile_icon = forms.ImageField(required=False)
-
+    profile_icon = forms.ChoiceField(choices=ICON_CHOICES, required=True, label="Selecciona un ícono")
 
     class Meta:
         model = CustomUser

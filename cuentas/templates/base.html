@@ -5,11 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Aplicación</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet"> <!-- Fuente Bangers -->
+    <style>
+        .navbar-brand {
+            font-family: 'Bangers', cursive;
+            font-size: 24px; /* Puedes ajustar el tamaño según prefieras */
+        }
+    </style>
 </head>
 
 <body>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Mi Aplicación</a>
+      <!-- Aquí modifico el enlace para que apunte a la página de bienvenida. Puedes cambiar la URL según tus necesidades -->
+      <a class="navbar-brand" href="{% url 'bienvenido' %}">MathLog</a>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if user.is_authenticated and user.role == 'TEACHER' %}
@@ -24,16 +32,12 @@
             </div>
   </nav>
 
-
-   
-    
-        {% for message in messages %}
+    {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endfor %}
-
 
     {% block content %}
     {% endblock %}

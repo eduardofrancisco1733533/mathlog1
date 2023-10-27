@@ -3,8 +3,16 @@
 
 {% block content %}
 <style>
+    /* Estilos generales con la fuente Oswald */
     body {
         background-color: #e6f7ff;
+        font-family: 'Oswald', sans-serif;
+    }
+
+    /* Estilo específico para el título con la fuente Anton */
+    h2 {
+        font-family: 'Anton', sans-serif;
+        margin-bottom: 20px;
     }
 
     .login-container {
@@ -46,7 +54,7 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6 login-container">
-            <h2 class="mb-4">Iniciar Sesión</h2>
+            <h2>Iniciar Sesión</h2>
             <form method="post">
                 {% csrf_token %}
                 <div class="mb-3">

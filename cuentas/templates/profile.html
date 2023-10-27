@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <style>
     /* Estilos para el fondo */
     body {
         background-color: #e6f7ff;
+        font-family: 'Oswald', sans-serif; /* Fijamos la fuente Oswald para el cuerpo */
     }
 
     /* Estilos para el contenedor principal */
@@ -13,7 +15,13 @@
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         padding: 30px;
-        margin-top: 30px; /* Añadir margen superior */
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    h2 {
+        font-family: 'Anton', sans-serif; /* Fijamos la fuente Anton para los títulos */
+        margin-bottom: 20px;
     }
 
     /* Estilos para el botón */
@@ -37,11 +45,6 @@
         text-decoration: underline;
     }
 
-    /* Estilos adicionales */
-    h2 {
-        margin-bottom: 20px;
-    }
-
     /* Estilos para el formulario */
     .form-control {
         border-radius: 5px;
@@ -56,46 +59,61 @@
     /* Estilos para la imagen del icono */
     img.img-thumbnail {
         border: 2px solid #007BFF;
-        border-radius: 5px;
+        border-radius: 50%;
         margin-top: 10px;
         max-width: 150px;
     }
 
-    /* Estilos para la selección de iconos predefinidos */
-    .form-check-label {
-        display: block;
-        margin-bottom: 10px;
+    .user-details {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+
+    .user-detail {
+        flex: 1;
+        font-size: 18px;
+        text-align: center;
+    }
+
+    /* Estilo para el formulario con alineación del botón */
+    form {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    form button {
+        margin-left: 10px;
     }
 </style>
 
 <div class="container">
-    <h2>Perfil de {{ request.user.username }}</h2>
-    <form method="post" enctype="multipart/form-data">
+    <div class="user-icon">
+        {% if request.user.profile_icon %}
+            <img src="{{ request.user.profile_icon.url }}" alt="Icono" class="img-thumbnail">
+        {% else %}
+            <p>No has asignado un icono de perfil.</p>
+        {% endif %}
+    </div>
+
+    <h2>{{ request.user.username }}</h2>
+
+    <!-- Formulario para actualizar el icono -->
+    <form method="post" class="update-form">
         {% csrf_token %}
         {{ form.profile_icon.label_tag }}
-        <input type="file" name="{{ form.profile_icon.name }}" class="form-control">
-        <button type="submit" class="btn btn-primary">Actualizar Icono</button>
+        {{ form.profile_icon }}
+        <button type="submit" class="btn btn-primary">Cambiar</button>
     </form>
 
-    <div class="mt-4">
-        <h4>Información del Usuario</h4>
-        <div class="row">
-            <div class="col-md-4">
-                <strong>Icono:</strong><br>
-                {% if request.user.profile_icon %}
-                    <img src="{{ request.user.profile_icon.url }}" alt="Icono" width="100" class="img-thumbnail">
-                {% else %}
-                    <p>No has asignado un icono de perfil.</p>
-                {% endif %}
-            </div>
-            <div class="col-md-4">
-                <strong>Puntos:</strong><br>
-                {{ request.user.points }}
-            </div>
-            <div class="col-md-4">
-                <strong>Clase:</strong><br>
-                {{ request.user.user_class }}
-            </div>
+    <!-- Detalles del usuario en la misma línea -->
+    <div class="mt-4 user-details">
+        <div class="user-detail">
+            <strong>Puntos:</strong> {{ request.user.points }}
+        </div>
+        <div class="user-detail">
+            <strong>Clase:</strong> {{ request.user.user_class }}
         </div>
     </div>
 </div>

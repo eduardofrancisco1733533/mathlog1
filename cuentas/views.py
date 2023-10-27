@@ -156,8 +156,6 @@ def detalle_salon(request, salon_id):
 
 
 
-
-
 def profile_view(request):
     user = request.user
 
