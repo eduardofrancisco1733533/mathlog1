@@ -16,8 +16,7 @@
 
 <body>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <!-- Aquí modifico el enlace para que apunte a la página de bienvenida. Puedes cambiar la URL según tus necesidades -->
-      <a class="navbar-brand" href="{% url 'bienvenido' %}">MathLog</a>
+      <a class="navbar-brand" href="{%url 'bienvenido'%}">Mi Aplicación</a>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if user.is_authenticated and user.role == 'TEACHER' %}
