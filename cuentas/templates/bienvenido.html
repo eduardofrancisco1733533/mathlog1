@@ -6,7 +6,7 @@
     /* Estilos personalizados para la página de bienvenida */
     body {
         background-color: #e6f7ff;
-        font-family: 'Oswald', sans-serif; /* Configura la fuente Oswald como default para todo el body */
+        font-family: 'Oswald', sans-serif;
     }
 
     .welcome-container {
@@ -17,26 +17,26 @@
     }
 
     .welcome-container h2 {
-        font-family: 'Anton', sans-serif; /* Configura la fuente Anton para los títulos h2 */
-        font-size: 36px; /* Ajusta el tamaño si es necesario */
+        font-family: 'Anton', sans-serif;
+        font-size: 36px;
     }
 
     .section-btn {
         display: block;
-        padding: 40px 30px;
-        margin: 20px 0;
-        border-radius: 10px;
+        padding: 10px 30px;
+        margin: 10px 0;
+        border-radius: 5px;
         transition: background-color 0.3s ease, transform 0.2s ease;
-        font-size: 20px;
-        text-align: left;
-        color: white; /* Texto blanco para resaltar en fondos oscuros */
-        text-decoration: none; /* Remover subrayado de enlaces */
+        font-size: 18px;
+        text-align: center;
+        color: white;
+        text-decoration: none;
     }
 
     .section-btn:hover {
         background-color: #f2f2f2;
         transform: scale(1.05);
-        color: black;  /* Texto negro cuando se pasa el cursor por encima */
+        color: black;
     }
 
     .btn-primary {
@@ -50,6 +50,11 @@
     .btn-danger {
         background-color: #dc3545;
     }
+
+    /* Nuevo estilo para el botón de actividades del estudiante */
+    .btn-actividades {
+        background-color: #28a745; /* Un verde estándar para el botón */
+    }
 </style>
 
 <div class="container mt-5">
@@ -61,7 +66,8 @@
                 {% if request.user.is_authenticated %}
                     <a href="{% url 'drag_drop_view' %}" class="section-btn btn-primary">Test dragDrop</a>
                     <a href="{% url 'profile' %}" class="section-btn btn-secondary">Ir a mi Perfil</a>
-                    <a href="{% url 'logout' %}" class="section-btn btn-danger">Cerrar Sesión</a>
+                    <a href="{% url 'actividades_estudiante' %}" class="section-btn btn-actividades">Actividades del Estudiante</a>
+                    <a href="{% url 'logout' %}" class="section-btn btn-danger">Cerrar Sesión</a>                  
                 {% endif %}
             </div>
         </div>
