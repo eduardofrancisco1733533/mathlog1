@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
-from cuentas.models import CustomUser,Ecuacion
+from cuentas.models import CustomUser, Ecuacion
 from sympy import symbols, Eq, solve
 
 class CustomUserTests(TestCase):

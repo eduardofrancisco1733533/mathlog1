@@ -8,12 +8,19 @@ class CustomUserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, username=username, **extra_fields)
         user.set_password(password)
+        
+        # Asigna el rol por defecto si no se provee uno.
+        user.role = extra_fields.get('role', 'STUDENT')
+
         user.save(using=self._db)
         return user
 
     def create_superuser(self, email, username, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+
+        # Asegúrate de que el superusuario tiene un rol; puedes decidir qué rol es adecuado para un superusuario.
+        extra_fields.setdefault('role', 'TEACHER')
 
         return self.create_user(email, username, password, **extra_fields)
 
@@ -27,7 +34,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    role = models.CharField(max_length=7, choices=ROLES, null=True, blank=True)  # campo de rol
+    role = models.CharField(max_length=7, choices=ROLES)  # Asegúrate de que no haya 'null=True' aquí
     profile_icon = models.ImageField(upload_to='media/', null=True, blank=True)
     points = models.IntegerField(default=0, verbose_name='Puntos')
     user_class = models.CharField(max_length=50, default='', blank=True, verbose_name='Clase de usuario')
@@ -39,7 +46,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
-    
+# Your other models remain unchanged
+
 class Ecuacion(models.Model):
     ecuacion = models.TextField()
     profesor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='ecuaciones_creadas', null=True)

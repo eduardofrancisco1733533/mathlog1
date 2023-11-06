@@ -6,9 +6,9 @@ import re
 class CustomUserCreationForm(UserCreationForm):
     role = forms.ChoiceField(choices=CustomUser.ROLES, required=True, label='Rol', widget=forms.RadioSelect)
 
-    class Meta:
+    class Meta(UserCreationForm.Meta):
         model = CustomUser
-        fields = ('email', 'username')
+        fields = ('email', 'username', 'password1', 'password2', 'role')  # Agregar 'role' al formulario
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -36,7 +36,7 @@ class CustomUserCreationForm(UserCreationForm):
         return password
 
 class CustomUserChangeForm(UserChangeForm):
-    class Meta:
+    class Meta(UserChangeForm.Meta):
         model = CustomUser
         fields = ('email', 'username')
 
@@ -51,9 +51,10 @@ class SalonForm(forms.ModelForm):
         fields = ['nombre']
 
 class AgregarEstudianteForm(forms.Form):
-    estudiantes = forms.ModelMultipleChoiceField(queryset=CustomUser.objects.all(), widget=forms.CheckboxSelectMultiple)
-
-
+    estudiantes = forms.ModelMultipleChoiceField(
+        queryset=CustomUser.objects.all(),
+        widget=forms.CheckboxSelectMultiple
+    )
 
 class UserProfileForm(forms.ModelForm):
     ICON_CHOICES = [
@@ -84,4 +85,4 @@ class ActividadForm(forms.ModelForm):
 
     class Meta:
         model = Actividad
-        fields = ['ecuaciones']
+        fields = ['ecuaciones']  # Asumiendo que quieres incluir el campo 'nombre'
