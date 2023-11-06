@@ -34,7 +34,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    role = models.CharField(max_length=7, choices=ROLES)  # Asegúrate de que no haya 'null=True' aquí
+    role = models.CharField(max_length=7, choices=ROLES,null=True)  # Asegúrate de que no haya 'null=True' aquí
     profile_icon = models.ImageField(upload_to='media/', null=True, blank=True)
     points = models.IntegerField(default=0, verbose_name='Puntos')
     user_class = models.CharField(max_length=50, default='', blank=True, verbose_name='Clase de usuario')
@@ -58,7 +58,6 @@ class Salon(models.Model):
     nombre = models.CharField(max_length=200)
     profesor = models.ForeignKey(CustomUser, related_name='clases_creadas', on_delete=models.CASCADE)
     estudiantes = models.ManyToManyField(CustomUser, related_name='clases_asignadas')
-    ecuacion = models.TextField()
 
 class Actividad(models.Model):
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE)
