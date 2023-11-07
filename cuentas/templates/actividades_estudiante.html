@@ -5,7 +5,6 @@
     <ul>
     {% for actividad in actividades %}
         <li>
-            Actividad creada el: {{ actividad.fecha_creacion }} <br>
             Ecuaciones:
             <ul>
                 {% for ecuacion in actividad.ecuaciones.all %}

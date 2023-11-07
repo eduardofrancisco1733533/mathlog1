@@ -71,18 +71,7 @@ class UserProfileForm(forms.ModelForm):
         fields = ['profile_icon']
 
 class ActividadForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super(ActividadForm, self).__init__(*args, **kwargs)
-        if self.user:
-            self.fields['ecuaciones'].queryset = Ecuacion.objects.filter(profesor=self.user)
-
-    ecuaciones = forms.ModelMultipleChoiceField(
-        queryset=Ecuacion.objects.all(),
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-        label="Ecuaciones a resolver"
-    )
-
+    numero_ecuaciones = forms.IntegerField(min_value=1, label="Número de ecuaciones")
     class Meta:
         model = Actividad
-        fields = ['ecuaciones']  # Asumiendo que quieres incluir el campo 'nombre'
+        fields = ['numero_ecuaciones']

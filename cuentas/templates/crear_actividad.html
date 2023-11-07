@@ -7,19 +7,11 @@
             <form method="post">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label>{{ form.ecuaciones.label }}</label>
-                    {% for choice in form.ecuaciones %}
-                    <div class="form-check">
-                        {{ choice.tag }}
-                        <label class="form-check-label" for="{{ choice.id_for_label }}">
-                            {{ choice.choice_label }}
-                        </label>
-                    </div>
-                    {% endfor %}
+                    <label for="{{ form.numero_ecuaciones.id_for_label }}">{{ form.numero_ecuaciones.label }}</label>
+                    {{ form.numero_ecuaciones }}
                 </div>
                 <button type="submit" class="btn btn-success">Crear</button>
             </form>
-            <a href="{% url 'ingresar_ecuacion' salon.id%}" class="btn btn-secondary mt-3">Ingresar nueva ecuación</a>
         </div>
     </div>
 </div>

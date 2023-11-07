@@ -62,4 +62,3 @@ class Salon(models.Model):
 class Actividad(models.Model):
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE)
     ecuaciones = models.ManyToManyField(Ecuacion)
-    fecha_creacion = models.DateTimeField(auto_now_add=True)

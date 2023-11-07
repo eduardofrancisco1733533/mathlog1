@@ -1,3 +1,4 @@
+import random
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -153,6 +154,24 @@ def listar_ecuaciones(request):
     ecuaciones = Ecuacion.objects.filter(profesor=request.user)
     return render(request, 'lista_ecuaciones.html', {'ecuaciones': ecuaciones})
 
+def generar_ecuacion():
+    a = random.randint(1, 999)
+    b = random.randint(1, 999)
+    operacion = random.choice(['+', '-', '*', '//'])
+    if operacion == '//':  # Asegurar que 'b' no sea cero en caso de división
+        b = random.randint(1, 999)
+
+    # Generar la ecuación en formato de texto
+    if operacion == '*':
+        ecuacion_str = f"{a}x {operacion} {b} = 0"
+    elif operacion == '//':
+        # Asegurar resultado entero para la división
+        ecuacion_str = f"{a * b}x // {b} = 0"
+    else:
+        ecuacion_str = f"{a}x {operacion} {b} = 0"
+
+    return ecuacion_str
+
 @login_required
 @teacher_required
 def crear_actividad(request, salon_id):
@@ -160,14 +179,19 @@ def crear_actividad(request, salon_id):
     if request.method == "POST":
         form = ActividadForm(request.POST)
         if form.is_valid():
-            actividad = form.save(commit=False)
-            actividad.salon = salon
-            actividad.save()
-            form.save_m2m()
+            numero_ecuaciones = form.cleaned_data['numero_ecuaciones']
+            actividad = Actividad.objects.create(salon=salon)
+            
+            for _ in range(numero_ecuaciones):
+                ecuacion_str = generar_ecuacion()
+                ecuacion = Ecuacion.objects.create(ecuacion=ecuacion_str, profesor=request.user)
+                actividad.ecuaciones.add(ecuacion)
+
             return redirect('detalle_salon', salon_id=salon.id)
     else:
         form = ActividadForm()
     return render(request, 'crear_actividad.html', {'form': form, 'salon': salon})
+
 
 def actividades_estudiante(request):
     estudiante = request.user
