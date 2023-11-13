@@ -15,6 +15,28 @@ from .forms import (
 from django.contrib import messages
 from sympy import SympifyError, symbols, Eq, solve, sympify
 import re
+from fractions import Fraction
+from sympy import Rational
+
+def comparar_respuestas(respuesta_estudiante, solucion_sympy, tolerancia=0.01):
+    try:
+        # Intenta convertir la respuesta del estudiante a un número decimal
+        respuesta_decimal = float(respuesta_estudiante)
+        solucion_decimal = float(solucion_sympy.evalf())
+        return abs(respuesta_decimal - solucion_decimal) < tolerancia
+    except ValueError:
+        # Si la conversión a decimal falla, intenta convertir la respuesta a una fracción
+        try:
+            respuesta_fraccion = Fraction(respuesta_estudiante)
+            # Convierte la solución de SymPy a una fracción si es racional
+            if isinstance(solucion_sympy, Rational):
+                solucion_fraccion = Fraction(solucion_sympy.p, solucion_sympy.q)
+                return respuesta_fraccion == solucion_fraccion
+            return False
+        except ValueError:
+            # Si ambas conversiones fallan, la respuesta es incorrecta
+            return False
+
 
 def teacher_required(view_func):
     def _wrapped_view_func(request, *args, **kwargs):
@@ -188,21 +210,19 @@ def enviar_respuestas(request, actividad_id):
         actividad = Actividad.objects.get(id=actividad_id)
         x = symbols('x')
         resultado_respuestas = {}
+
         for ecuacion in actividad.ecuaciones.all():
             respuesta = request.POST.get(f"respuesta_{ecuacion.id}")
             try:
                 ecuacion_transformada = transformar_ecuacion(ecuacion.ecuacion.split('=')[0])
-                solucion = solve(Eq(sympify(ecuacion_transformada), 0), x)
-                solucion_decimal = solucion[0].evalf()
-                print(solucion_decimal)
-                # Asegúrate de que la comparación resulte en un valor booleano de Python
-                es_correcta = abs(float(respuesta) - solucion_decimal) < 0.01
-            except (SympifyError, ValueError, TypeError):
+                solucion = solve(Eq(sympify(ecuacion_transformada), 0), x)[0]
+                es_correcta = comparar_respuestas(respuesta, solucion)
+            except SympifyError:
                 es_correcta = False
 
-            # Convierte es_correcta a un booleano de Python si no lo es
-            resultado_respuestas[f"respuesta_{ecuacion.id}"] = bool(es_correcta)
+            resultado_respuestas[f"respuesta_{ecuacion.id}"] = es_correcta
 
         return JsonResponse({"respuestas": resultado_respuestas})
     else:
         return redirect('actividades_estudiante')
+
