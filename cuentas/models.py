@@ -39,6 +39,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     points = models.IntegerField(default=0, verbose_name='Puntos')
     user_class = models.CharField(max_length=50, default='', blank=True, verbose_name='Clase de usuario')
 
+
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
