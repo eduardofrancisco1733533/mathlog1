@@ -21,7 +21,10 @@ urlpatterns = [
     path('listar_ecuaciones/', views.listar_ecuaciones, name='listar_ecuaciones'),
     path('salon/<int:salon_id>/crear_actividad/', views.crear_actividad, name='crear_actividad'),
     path('actividades_estudiante/', views.actividades_estudiante, name='actividades_estudiante'),
+    path('agregar_puntos/<str:username>/', views.agregar_puntos, name='agregar_puntos'),
+    path('quitar_puntos/<str:username>/', views.quitar_puntos, name='quitaar_puntos'),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

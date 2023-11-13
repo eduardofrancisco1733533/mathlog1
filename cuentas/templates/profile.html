@@ -3,15 +3,41 @@
 
 {% block content %}
 <style>
+    /* Estilos para el fondo dinámico */
+    .background-dinamico {
+        /* Fondo por defecto */
+        background: url('{{ MEDIA_URL }}images/default_background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+    .rango-maestro {
+        background: url('../media/maestro_background.gif.gif') no-repeat center center fixed;
+        background-size: cover;
+    }
+    .rango-experto {
+        background: url('../media/experto_background.gif') no-repeat center center fixed;
+        background-size: cover;
+    }
+    .rango-competente {
+        background: url('../media/competente_background.gif') no-repeat center center fixed;
+        background-size: cover;
+    }
+    .rango-novato {
+        background: url('../media/novato_background.gif') no-repeat center center fixed;
+        background-size: cover;
+    }
+    .rango-principiante {
+        background: url('../media/principiante_background.gif') no-repeat center center fixed;
+        background-size: cover;
+    }
+    /* Resto de tus estilos... */
     /* Estilos para el fondo */
     body {
-        background-color: #e6f7ff;
         font-family: 'Oswald', sans-serif; /* Fijamos la fuente Oswald para el cuerpo */
     }
 
     /* Estilos para el contenedor principal */
     .container {
-        background-color: #ffffff;
+        background-color: #a79854;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         padding: 30px;
@@ -88,33 +114,58 @@
     }
 </style>
 
-<div class="container">
-    <div class="user-icon">
-        {% if request.user.profile_icon %}
-            <img src="{{ request.user.profile_icon.url }}" alt="Icono" class="img-thumbnail">
-        {% else %}
-            <p>No has asignado un icono de perfil.</p>
-        {% endif %}
-    </div>
 
-    <h2>{{ request.user.username }}</h2>
-
-    <!-- Formulario para actualizar el icono -->
-    <form method="post" class="update-form">
-        {% csrf_token %}
-        {{ form.profile_icon.label_tag }}
-        {{ form.profile_icon }}
-        <button type="submit" class="btn btn-primary">Cambiar</button>
-    </form>
-
-    <!-- Detalles del usuario en la misma línea -->
-    <div class="mt-4 user-details">
-        <div class="user-detail">
-            <strong>Puntos:</strong> {{ request.user.points }}
+{% with puntos=request.user.points %}
+<div class="background-dinamico {% if puntos >= 1000 %}rango-maestro
+                                {% elif puntos >= 500 %}rango-experto
+                                {% elif puntos >= 250 %}rango-competente
+                                {% elif puntos >= 100 %}rango-novato
+                                {% else %}rango-principiante{% endif %}">
+    <div class="container">
+        <div class="user-icon">
+            {% if request.user.profile_icon %}
+                <img src="{{ request.user.profile_icon.url }}" alt="Icono" class="img-thumbnail">
+            {% else %}
+                <p>No has asignado un icono de perfil.</p>
+            {% endif %}
         </div>
-        <div class="user-detail">
-            <strong>Clase:</strong> {{ request.user.user_class }}
+
+        <h2>{{ request.user.username }}</h2>
+
+        <form method="post" class="update-form">
+            {% csrf_token %}
+            {{ form.profile_icon.label_tag }}
+            {{ form.profile_icon }}
+            <button type="submit" class="btn btn-primary">Cambiar</button>
+        </form>
+
+        <div class="mt-4 user-details">
+            <div class="user-detail">
+                <strong>Puntos:</strong> {{ request.user.points }}
+            </div>
+            <div class="user-detail">
+                <strong>Rango:</strong> 
+                {% if puntos >= 1000 %}
+                    Maestro
+                {% elif puntos >= 500 %}
+                    Experto
+                {% elif puntos >= 250 %}
+                    Competente
+                {% elif puntos >= 100 %}
+                    Novato
+                {% else %}
+                    Principiante
+                {% endif %}
+            </div>
+            <strong>Clases Asignadas:</strong>
+            <ul>
+                {% for salon in clases_asignadas %}
+                    <li>{{ salon.nombre }}</li>
+                {% empty %}
+                    <li>No estás asignado a ninguna clase.</li>
+                {% endfor %}
         </div>
     </div>
 </div>
+{% endwith %}
 {% endblock %}

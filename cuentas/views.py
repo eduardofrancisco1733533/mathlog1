@@ -1,5 +1,8 @@
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from .models import CustomUser
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from cuentas.models import Actividad, Ecuacion, Salon
@@ -145,7 +148,15 @@ def profile_view(request):
             return redirect('profile')
     else:
         form = UserProfileForm(instance=request.user)
-    return render(request, 'profile.html', {'form': form})
+
+    # Obtener las clases asignadas al usuario
+    clases_asignadas = Salon.objects.filter(estudiantes=request.user)
+
+    context = {
+        'form': form,
+        'clases_asignadas': clases_asignadas
+    }
+    return render(request, 'profile.html', context)
 
 @login_required
 @teacher_required
@@ -174,3 +185,18 @@ def actividades_estudiante(request):
     salones = estudiante.clases_asignadas.all()
     actividades = Actividad.objects.filter(salon__in=salones)
     return render(request, 'actividades_estudiante.html', {'actividades': actividades})
+
+def agregar_puntos(request, username):
+    usuario = get_object_or_404(CustomUser, username=username)
+    usuario.points += 50  
+    usuario.save()
+
+    return HttpResponse("Puntos añadidos correctamente.")
+
+
+def quitar_puntos(request, username):
+    usuario = get_object_or_404(CustomUser, username=username)
+    usuario.points -= 50  
+    usuario.save()
+
+    return HttpResponse("Puntos restados correctamente.")
