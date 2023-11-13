@@ -1,5 +1,5 @@
 import random
-from django.http import HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponseForbidden, HttpResponseNotFound, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -13,7 +13,7 @@ from .forms import (
     UserProfileForm,
 )
 from django.contrib import messages
-from sympy import symbols, Eq, solve, sympify
+from sympy import SympifyError, symbols, Eq, solve, sympify
 import re
 
 def teacher_required(view_func):
@@ -23,8 +23,12 @@ def teacher_required(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view_func
 
-def agregar_multiplicacion_implicita(expr):
-    return re.sub(r'(\d)([a-zA-Z])', r'\1*\2', expr)
+def transformar_ecuacion(ecuacion_str):
+    # Asegúrate de que haya un espacio entre números y variables/operadores
+    ecuacion_str = ecuacion_str.replace("x", " * x")
+    # Añadir más transformaciones si es necesario
+    return ecuacion_str
+
 
 def some_view(request):
     messages.success(request, "Esto es una prueba")
@@ -70,26 +74,6 @@ def logout_view(request):
 def drag_drop_view(request):
     return render(request, 'drag_and_drop.html')
 
-def ingresar_ecuacion(request, salon_id):
-    salon = Salon.objects.get(id=salon_id)
-    if request.method == "POST":
-        form = EcuacionForm(request.POST)
-        if form.is_valid():
-            ecuacion_str = agregar_multiplicacion_implicita(form.cleaned_data['ecuacion'])
-            x = symbols('x')
-            try:
-                sol = solve(Eq(sympify(ecuacion_str), 0), x)
-                ecuacion_obj = form.save(commit=False)
-                ecuacion_obj.profesor = request.user
-                ecuacion_obj.save()
-                mensaje = "Ecuación resuelta y guardada exitosamente!"
-                form = EcuacionForm()
-            except Exception as e:
-                mensaje = f"No se pudo resolver la ecuación. Error: {str(e)}"
-    else:
-        form = EcuacionForm()
-        mensaje = None
-    return render(request, 'ingresar_ecuacion.html', {'form': form, 'mensaje': mensaje, 'salon': salon})
 
 @login_required
 @teacher_required
@@ -198,3 +182,27 @@ def actividades_estudiante(request):
     salones = estudiante.clases_asignadas.all()
     actividades = Actividad.objects.filter(salon__in=salones)
     return render(request, 'actividades_estudiante.html', {'actividades': actividades})
+@login_required
+def enviar_respuestas(request, actividad_id):
+    if request.method == "POST":
+        actividad = Actividad.objects.get(id=actividad_id)
+        x = symbols('x')
+        resultado_respuestas = {}
+        for ecuacion in actividad.ecuaciones.all():
+            respuesta = request.POST.get(f"respuesta_{ecuacion.id}")
+            try:
+                ecuacion_transformada = transformar_ecuacion(ecuacion.ecuacion.split('=')[0])
+                solucion = solve(Eq(sympify(ecuacion_transformada), 0), x)
+                solucion_decimal = solucion[0].evalf()
+                print(solucion_decimal)
+                # Asegúrate de que la comparación resulte en un valor booleano de Python
+                es_correcta = abs(float(respuesta) - solucion_decimal) < 0.01
+            except (SympifyError, ValueError, TypeError):
+                es_correcta = False
+
+            # Convierte es_correcta a un booleano de Python si no lo es
+            resultado_respuestas[f"respuesta_{ecuacion.id}"] = bool(es_correcta)
+
+        return JsonResponse({"respuestas": resultado_respuestas})
+    else:
+        return redirect('actividades_estudiante')
