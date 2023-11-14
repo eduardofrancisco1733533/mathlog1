@@ -49,10 +49,16 @@ def teacher_required(view_func):
     return _wrapped_view_func
 
 def transformar_ecuacion(ecuacion_str):
-    # Asegúrate de que haya un espacio entre números y variables/operadores
-    ecuacion_str = ecuacion_str.replace("x", " * x")
-    # Añadir más transformaciones si es necesario
+    # Reemplazar la división entera (//) por división normal (/)
+    ecuacion_str = ecuacion_str.replace("//", "/")
+
+    # Asegurarse de que haya espacios alrededor de los operadores
+    ecuacion_str = ecuacion_str.replace("*", " * ").replace("-", " - ").replace("+", " + ").replace("/", " / ")
+
+    # Aquí puedes añadir más reglas de transformación si es necesario
+
     return ecuacion_str
+
 
 
 def some_view(request):
