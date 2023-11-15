@@ -63,3 +63,14 @@ class Salon(models.Model):
 class Actividad(models.Model):
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE)
     ecuaciones = models.ManyToManyField(Ecuacion)
+
+class ProgresoActividad(models.Model):
+    estudiante = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='progreso_actividades')
+    actividad = models.ForeignKey(Actividad, on_delete=models.CASCADE, related_name='progresos')
+    completada = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('estudiante', 'actividad')
+
+    def __str__(self):
+        return f"{self.estudiante.username} - {self.actividad.id} {'Completada' if self.completada else 'No Completada'}"

@@ -3,7 +3,7 @@ from django.http import HttpResponseForbidden, HttpResponseNotFound, JsonRespons
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from .models import CustomUser
+from .models import CustomUser, ProgresoActividad
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from cuentas.models import Actividad, Ecuacion, Salon
@@ -211,16 +211,24 @@ def crear_actividad(request, salon_id):
     return render(request, 'crear_actividad.html', {'form': form, 'salon': salon})
 
 
+@login_required
 def actividades_estudiante(request):
     estudiante = request.user
-    salones = estudiante.clases_asignadas.all()
-    actividades = Actividad.objects.filter(salon__in=salones)
-    return render(request, 'actividades_estudiante.html', {'actividades': actividades})
+    # Obtener solo las actividades que aún no han sido completadas por el estudiante
+    actividades_no_completadas = Actividad.objects.filter(
+        salon__estudiantes=estudiante
+    ).exclude(
+        progresos__estudiante=estudiante, progresos__completada=True
+    )
+    return render(request, 'actividades_estudiante.html', {'actividades': actividades_no_completadas})
+
 @login_required
 def enviar_respuestas(request, actividad_id):
     if request.method == "POST":
-        actividad = Actividad.objects.get(id=actividad_id)
+        actividad = get_object_or_404(Actividad, id=actividad_id)
+        estudiante = request.user
         x = symbols('x')
+        todas_correctas = True
         resultado_respuestas = {}
 
         for ecuacion in actividad.ecuaciones.all():
@@ -233,8 +241,18 @@ def enviar_respuestas(request, actividad_id):
                 es_correcta = False
 
             resultado_respuestas[f"respuesta_{ecuacion.id}"] = es_correcta
+            if not es_correcta:
+                todas_correctas = False
 
-        return JsonResponse({"respuestas": resultado_respuestas})
+        # Actualiza el progreso del estudiante en la actividad si todas las respuestas son correctas
+        if todas_correctas:
+            ProgresoActividad.objects.update_or_create(
+                estudiante=estudiante, 
+                actividad=actividad, 
+                defaults={'completada': True}
+            )
+
+        return JsonResponse({"respuestas": resultado_respuestas, "todas_correctas": todas_correctas})
     else:
         return redirect('actividades_estudiante')
 
