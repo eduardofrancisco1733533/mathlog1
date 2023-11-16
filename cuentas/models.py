@@ -47,7 +47,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
-# Your other models remain unchanged
+
 
 class Ecuacion(models.Model):
     ecuacion = models.TextField()
@@ -74,3 +74,12 @@ class ProgresoActividad(models.Model):
 
     def __str__(self):
         return f"{self.estudiante.username} - {self.actividad.id} {'Completada' if self.completada else 'No Completada'}"
+class IntentoEcuacion(models.Model):
+    usuario = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='intentos_ecuacion')
+    ecuacion = models.ForeignKey(Ecuacion, on_delete=models.CASCADE, related_name='intentos')
+    intentos = models.IntegerField(default=0)
+    ultima_respuesta_correcta = models.BooleanField(default=False)
+    es_correcta = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.ecuacion.ecuacion[:50]} - Intentos: {self.intentos}"

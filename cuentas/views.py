@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from .models import CustomUser, ProgresoActividad
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from cuentas.models import Actividad, Ecuacion, Salon
+from cuentas.models import Actividad, Ecuacion, Salon, IntentoEcuacion 
 from .forms import (
     ActividadForm,
     AgregarEstudianteForm,
@@ -281,3 +281,42 @@ def generar_pista(ecuacion_obj):
         return "Revisa cómo has despejado la variable 'x' en la ecuación."
 
 
+
+def enviar_respuestas(request, actividad_id):
+    if request.method == "POST":
+        actividad = get_object_or_404(Actividad, id=actividad_id)
+        x = symbols('x')
+        resultado_respuestas = {}
+
+        for ecuacion in actividad.ecuaciones.all():
+            respuesta = request.POST.get(f"respuesta_{ecuacion.id}")
+            intento, creado = IntentoEcuacion.objects.get_or_create(usuario=request.user, ecuacion=ecuacion)
+
+            if not intento.es_correcta:  # Verifica si la ecuación no ha sido respondida correctamente antes
+                try:
+                    ecuacion_transformada = transformar_ecuacion(ecuacion.ecuacion.split('=')[0])
+                    solucion = solve(Eq(sympify(ecuacion_transformada), 0), x)[0]
+                    es_correcta = comparar_respuestas(respuesta, solucion)
+
+                    if es_correcta:
+                        # Solo actualiza los puntos si es la primera vez que la respuesta es correcta
+                        if creado or intento.intentos == 0:
+                            request.user.points += 10
+                        elif intento.intentos == 1:
+                            request.user.points += 7
+                        else:
+                            request.user.points += 3
+                        request.user.save()
+                        intento.es_correcta = True  # Marca el intento como correcto
+
+                    intento.intentos += 1
+                    intento.save()
+
+                except SympifyError:
+                    es_correcta = False
+
+                resultado_respuestas[f"respuesta_{ecuacion.id}"] = es_correcta
+
+        return JsonResponse({"respuestas": resultado_respuestas})
+    else:
+        return redirect('actividades_estudiante')
