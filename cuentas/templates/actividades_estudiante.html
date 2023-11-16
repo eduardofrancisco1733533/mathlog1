@@ -18,10 +18,11 @@
                     Ecuaciones:
                     <ul>
                         {% for ecuacion in actividad.ecuaciones.all %}
-                        <li class="ecuacion my-3">
-                            <span>{{ ecuacion.ecuacion }}</span>
-                            <input type="text" name="respuesta_{{ ecuacion.id }}" placeholder="Escribe tu respuesta...">
-                        </li>
+                            <li class="ecuacion my-3">
+                                <span>{{ ecuacion.ecuacion }}</span>
+                                <input type="text" name="respuesta_{{ ecuacion.id }}" placeholder="Escribe tu respuesta...">
+                                <div class="pista" id="pista-{{ ecuacion.id }}"></div>
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -49,7 +50,7 @@ function getCookie(name) {
 }
 
 const csrfToken = getCookie('csrftoken');
- document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".actividad-form").forEach(form => {
         form.addEventListener("submit", function(event) {
             event.preventDefault();
@@ -57,6 +58,9 @@ const csrfToken = getCookie('csrftoken');
             const formData = new FormData(this);
             fetch(`/actividad/${actividadId}/enviar_respuestas/`, {
                 method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
                 body: formData
             })
             .then(response => response.json())
@@ -64,13 +68,21 @@ const csrfToken = getCookie('csrftoken');
                 this.querySelectorAll("input").forEach(input => {
                     const inputName = input.name;
                     if (data.respuestas && data.respuestas[inputName] !== undefined) {
-                        input.style.borderColor = data.respuestas[inputName] ? 'green' : 'red';
+                        const esCorrecta = data.respuestas[inputName].correcta;
+                        input.style.borderColor = esCorrecta ? 'green' : 'red';
+
+                        // Actualizar la pista
+                        const pistaElement = document.getElementById(`pista-${inputName.split('_')[1]}`);
+                        if (pistaElement) {
+                            pistaElement.innerText = esCorrecta ? '' : data.respuestas[inputName].pista;
+                        }
                     }
                 });
             });
         });
     });
 });
+
 </script>
     {% endblock %}
     

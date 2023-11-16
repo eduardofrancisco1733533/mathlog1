@@ -228,33 +228,28 @@ def enviar_respuestas(request, actividad_id):
         actividad = get_object_or_404(Actividad, id=actividad_id)
         estudiante = request.user
         x = symbols('x')
-        todas_correctas = True
         resultado_respuestas = {}
 
         for ecuacion in actividad.ecuaciones.all():
             respuesta = request.POST.get(f"respuesta_{ecuacion.id}")
+            es_correcta = False
+            pista = ""
+            
             try:
                 ecuacion_transformada = transformar_ecuacion(ecuacion.ecuacion.split('=')[0])
                 solucion = solve(Eq(sympify(ecuacion_transformada), 0), x)[0]
                 es_correcta = comparar_respuestas(respuesta, solucion)
+                if not es_correcta:
+                    pista = generar_pista(ecuacion)
             except SympifyError:
-                es_correcta = False
+                pista = "Hubo un error al analizar la ecuación."
 
-            resultado_respuestas[f"respuesta_{ecuacion.id}"] = es_correcta
-            if not es_correcta:
-                todas_correctas = False
+            resultado_respuestas[f"respuesta_{ecuacion.id}"] = {"correcta": es_correcta, "pista": pista}
 
-        # Actualiza el progreso del estudiante en la actividad si todas las respuestas son correctas
-        if todas_correctas:
-            ProgresoActividad.objects.update_or_create(
-                estudiante=estudiante, 
-                actividad=actividad, 
-                defaults={'completada': True}
-            )
-
-        return JsonResponse({"respuestas": resultado_respuestas, "todas_correctas": todas_correctas})
+        return JsonResponse({"respuestas": resultado_respuestas})
     else:
         return redirect('actividades_estudiante')
+
 
 
 def agregar_puntos(request, username):
@@ -271,3 +266,18 @@ def quitar_puntos(request, username):
     usuario.save()
 
     return HttpResponse("Puntos restados correctamente.")
+
+def generar_pista(ecuacion_obj):
+    ecuacion_str = ecuacion_obj.ecuacion  # Usar el campo 'ecuacion' del objeto 'Ecuacion'
+    partes = ecuacion_str.split()
+
+    if '+' in ecuacion_str or '-' in ecuacion_str:
+        return "Recuerda llevar todos los términos excepto 'x' al otro lado de la ecuación usando operaciones inversas."
+    elif '*' in ecuacion_str:
+        return "En una ecuación de multiplicación, si un lado es 0, el otro lado debe ser 0. ¿Qué valor de 'x' haría esto posible?"
+    elif '/' in ecuacion_str:
+        return "Si divides algo entre un número, ¿qué valor de 'x' hará que la ecuación sea igual a 0?"
+    else:
+        return "Revisa cómo has despejado la variable 'x' en la ecuación."
+
+
