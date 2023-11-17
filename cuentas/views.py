@@ -1,3 +1,4 @@
+from django.db.models import F
 import random
 from django.http import HttpResponseForbidden, HttpResponseNotFound, JsonResponse
 from django.shortcuts import render, redirect
@@ -21,6 +22,8 @@ import re
 from fractions import Fraction
 from sympy import Rational
 
+
+        
 def comparar_respuestas(respuesta_estudiante, solucion_sympy, tolerancia=0.01):
     try:
         # Intenta convertir la respuesta del estudiante a un número decimal
@@ -41,6 +44,7 @@ def comparar_respuestas(respuesta_estudiante, solucion_sympy, tolerancia=0.01):
             return False
 
 
+
 def teacher_required(view_func):
     def _wrapped_view_func(request, *args, **kwargs):
         if not request.user.is_authenticated or request.user.role != "TEACHER":
@@ -54,7 +58,6 @@ def transformar_ecuacion(ecuacion_str):
     ecuacion_str = ecuacion_str.replace("//", "/")
     # Añadir más transformaciones si es necesario
     return ecuacion_str
-
 
 def some_view(request):
     messages.success(request, "Esto es una prueba")
@@ -301,25 +304,37 @@ def generar_pista(ecuacion_obj):
 def enviar_respuestas(request, actividad_id):
     if request.method == "POST":
         actividad = get_object_or_404(Actividad, id=actividad_id)
+        usuario = request.user
         x = symbols('x')
         resultado_respuestas = {}
 
         for ecuacion in actividad.ecuaciones.all():
-            respuesta = request.POST.get(f"respuesta_{ecuacion.id}")
-            es_correcta = False
-            pista = ""
-            ejemplo = ""
+            intento, creado = IntentoEcuacion.objects.get_or_create(
+                usuario=usuario,
+                ecuacion=ecuacion
+            )
 
-            try:
-                ecuacion_transformada = transformar_ecuacion(ecuacion.ecuacion.split('=')[0])
-                solucion = solve(Eq(sympify(ecuacion_transformada), 0), x)[0]
-                es_correcta = comparar_respuestas(respuesta, solucion)
-                if not es_correcta:
-                    pista, ejemplo = generar_pista(ecuacion)
-                    print(ejemplo)
-            except SympifyError:
-                pista = "Hubo un error al analizar la ecuación."
-            resultado_respuestas[f"respuesta_{ecuacion.id}"] = {"correcta": es_correcta, "pista": pista, "ejemplo": ejemplo}
+            respuesta = request.POST.get(f"respuesta_{ecuacion.id}")
+            ecuacion_transformada = transformar_ecuacion(ecuacion.ecuacion.split('=')[0])
+            solucion = solve(Eq(sympify(ecuacion_transformada), 0), x)[0]
+            es_correcta = comparar_respuestas(respuesta, solucion)
+
+            # Genera una pista si la respuesta es incorrecta
+            pista = ""
+            if not es_correcta:
+                pista, ejemplo = generar_pista(ecuacion)
+            
+            if es_correcta and not intento.ultima_respuesta_correcta:
+                puntos_asignados = 10 if intento.intentos == 0 else 7 if intento.intentos == 1 else 3
+                CustomUser.objects.filter(id=usuario.id).update(points=F('points') + puntos_asignados)
+                intento.ultima_respuesta_correcta = True
+                intento.intentos += 1
+                intento.es_correcta = True
+            elif not es_correcta:
+                intento.intentos += 1
+
+            intento.save()
+            resultado_respuestas[f"respuesta_{ecuacion.id}"] = {"correcta": es_correcta, "pista": pista}
 
         return JsonResponse({"respuestas": resultado_respuestas})
     else:
