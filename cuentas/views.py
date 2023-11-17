@@ -232,6 +232,7 @@ def enviar_respuestas(request, actividad_id):
 
         for ecuacion in actividad.ecuaciones.all():
             respuesta = request.POST.get(f"respuesta_{ecuacion.id}")
+            print(respuesta)
             es_correcta = False
             pista = ""
             
@@ -240,11 +241,14 @@ def enviar_respuestas(request, actividad_id):
                 solucion = solve(Eq(sympify(ecuacion_transformada), 0), x)[0]
                 es_correcta = comparar_respuestas(respuesta, solucion)
                 if not es_correcta:
-                    pista = generar_pista(ecuacion)
+                    pista, ejemplo = generar_pista(ecuacion)
+                    resultado_respuestas[f"respuesta_{ecuacion.id}"] = {"correcta": es_correcta, "pista": pista, "ejemplo": ejemplo}
+                    print(resultado_respuestas)
             except SympifyError:
                 pista = "Hubo un error al analizar la ecuación."
 
             resultado_respuestas[f"respuesta_{ecuacion.id}"] = {"correcta": es_correcta, "pista": pista}
+            print(resultado_respuestas)
 
         return JsonResponse({"respuestas": resultado_respuestas})
     else:
@@ -268,20 +272,32 @@ def quitar_puntos(request, username):
     return HttpResponse("Puntos restados correctamente.")
 
 def generar_pista(ecuacion_obj):
-    ecuacion_str = ecuacion_obj.ecuacion  # Usar el campo 'ecuacion' del objeto 'Ecuacion'
-    partes = ecuacion_str.split()
+    ecuacion_str = ecuacion_obj.ecuacion
+    pista = ""
+    ejemplo = ""
 
     if '+' in ecuacion_str or '-' in ecuacion_str:
-        return "Recuerda llevar todos los términos excepto 'x' al otro lado de la ecuación usando operaciones inversas."
+        pista = "Realiza la misma operación en ambos lados de la ecuación para despejar 'x'."
+        if '+' in ecuacion_str:
+            ejemplo = "Por ejemplo, en '3x + 5 = 0', resta 5 en ambos lados para obtener '3x = -5'."
+        elif '-' in ecuacion_str:
+            ejemplo = "Por ejemplo, en '3x - 5 = 0', suma 5 en ambos lados para obtener '3x = 5'."
     elif '*' in ecuacion_str:
-        return "En una ecuación de multiplicación, si un lado es 0, el otro lado debe ser 0. ¿Qué valor de 'x' haría esto posible?"
+        pista = "Si un lado de una ecuación multiplicativa es 0, el otro lado también debe ser 0."
+        ejemplo = "Por ejemplo, en '2x * 3 = 0', ya que 2x * 3 es igual a 0, entonces 'x' debe ser 0."
     elif '/' in ecuacion_str:
-        return "Si divides algo entre un número, ¿qué valor de 'x' hará que la ecuación sea igual a 0?"
+        pista = "Para resolver una división por cero, el numerador debe ser 0."
+        ejemplo = "Por ejemplo, en 'x / 4 = 0', multiplica ambos lados por 4 para obtener 'x = 0'."
     else:
-        return "Revisa cómo has despejado la variable 'x' en la ecuación."
+        pista = "Revisa cómo has despejado la variable 'x' en la ecuación."
+        ejemplo = "Intenta simplificar la ecuación paso a paso."
+
+    return pista, ejemplo
 
 
 
+
+@login_required
 def enviar_respuestas(request, actividad_id):
     if request.method == "POST":
         actividad = get_object_or_404(Actividad, id=actividad_id)
@@ -290,32 +306,20 @@ def enviar_respuestas(request, actividad_id):
 
         for ecuacion in actividad.ecuaciones.all():
             respuesta = request.POST.get(f"respuesta_{ecuacion.id}")
-            intento, creado = IntentoEcuacion.objects.get_or_create(usuario=request.user, ecuacion=ecuacion)
+            es_correcta = False
+            pista = ""
+            ejemplo = ""
 
-            if not intento.es_correcta:  # Verifica si la ecuación no ha sido respondida correctamente antes
-                try:
-                    ecuacion_transformada = transformar_ecuacion(ecuacion.ecuacion.split('=')[0])
-                    solucion = solve(Eq(sympify(ecuacion_transformada), 0), x)[0]
-                    es_correcta = comparar_respuestas(respuesta, solucion)
-
-                    if es_correcta:
-                        # Solo actualiza los puntos si es la primera vez que la respuesta es correcta
-                        if creado or intento.intentos == 0:
-                            request.user.points += 10
-                        elif intento.intentos == 1:
-                            request.user.points += 7
-                        else:
-                            request.user.points += 3
-                        request.user.save()
-                        intento.es_correcta = True  # Marca el intento como correcto
-
-                    intento.intentos += 1
-                    intento.save()
-
-                except SympifyError:
-                    es_correcta = False
-
-                resultado_respuestas[f"respuesta_{ecuacion.id}"] = es_correcta
+            try:
+                ecuacion_transformada = transformar_ecuacion(ecuacion.ecuacion.split('=')[0])
+                solucion = solve(Eq(sympify(ecuacion_transformada), 0), x)[0]
+                es_correcta = comparar_respuestas(respuesta, solucion)
+                if not es_correcta:
+                    pista, ejemplo = generar_pista(ecuacion)
+                    print(ejemplo)
+            except SympifyError:
+                pista = "Hubo un error al analizar la ecuación."
+            resultado_respuestas[f"respuesta_{ecuacion.id}"] = {"correcta": es_correcta, "pista": pista, "ejemplo": ejemplo}
 
         return JsonResponse({"respuestas": resultado_respuestas})
     else:

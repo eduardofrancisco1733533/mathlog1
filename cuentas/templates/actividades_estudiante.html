@@ -8,38 +8,43 @@
     .incorrecto {
         border: 2px solid red;
     }
-    </style>
-    <div class="container mt-5">
-        <h2>Actividades</h2>
-        {% for actividad in actividades %}
-            <form class="actividad-form" data-actividad-id="{{ actividad.id }}">
-                {% csrf_token %}
-                <div>
-                    Ecuaciones:
-                    <ul>
-                        {% for ecuacion in actividad.ecuaciones.all %}
-                            <li class="ecuacion my-3">
-                                <span>{{ ecuacion.ecuacion }}</span>
-                                <input type="text" name="respuesta_{{ ecuacion.id }}" placeholder="Escribe tu respuesta...">
-                                <div class="pista" id="pista-{{ ecuacion.id }}"></div>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <button type="submit" class="btn btn-primary">Enviar Respuestas</button>
-            </form>
-        {% endfor %}
-    </div>
-    
-    <script>
-        // Obtener el token CSRF de las cookies
+
+    .pista {
+        margin-top: 10px;
+        font-style: italic;
+        color: #555;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2>Actividades</h2>
+    {% for actividad in actividades %}
+        <form class="actividad-form" data-actividad-id="{{ actividad.id }}">
+            {% csrf_token %}
+            <div>
+                Ecuaciones:
+                <ul>
+                    {% for ecuacion in actividad.ecuaciones.all %}
+                        <li class="ecuacion my-3">
+                            <span>{{ ecuacion.ecuacion }}</span>
+                            <input type="text" name="respuesta_{{ ecuacion.id }}" placeholder="Escribe tu respuesta..." class="respuesta-input">
+                            <div class="pista" id="pista-{{ ecuacion.id }}"></div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar Respuestas</button>
+        </form>
+    {% endfor %}
+</div>
+
+<script>
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
-            // ¿Esta cookie comienza con el nombre que queremos?
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
@@ -50,6 +55,7 @@ function getCookie(name) {
 }
 
 const csrfToken = getCookie('csrftoken');
+
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".actividad-form").forEach(form => {
         form.addEventListener("submit", function(event) {
@@ -65,24 +71,23 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .then(response => response.json())
             .then(data => {
-                this.querySelectorAll("input").forEach(input => {
-                    const inputName = input.name;
-                    if (data.respuestas && data.respuestas[inputName] !== undefined) {
-                        const esCorrecta = data.respuestas[inputName].correcta;
-                        input.style.borderColor = esCorrecta ? 'green' : 'red';
+    this.querySelectorAll(".ecuacion").forEach(ecuacionElement => {
+        const input = ecuacionElement.querySelector("input");
+        const inputName = input.name;
+        if (data.respuestas && data.respuestas[inputName] !== undefined) {
+            const esCorrecta = data.respuestas[inputName].correcta;
+            input.style.borderColor = esCorrecta ? 'green' : 'red';
 
-                        // Actualizar la pista
-                        const pistaElement = document.getElementById(`pista-${inputName.split('_')[1]}`);
-                        if (pistaElement) {
-                            pistaElement.innerText = esCorrecta ? '' : data.respuestas[inputName].pista;
-                        }
-                    }
-                });
-            });
+            // Actualizar la pista y el ejemplo
+            const pistaElement = ecuacionElement.querySelector(".pista");
+            if (pistaElement) {
+                pistaElement.innerHTML = esCorrecta ? '' : data.respuestas[inputName].pista + "<br><em>" + data.respuestas[inputName].ejemplo + "</em>";
+            }
+        }
+    });
+});
         });
     });
 });
-
 </script>
-    {% endblock %}
-    
+{% endblock %}
