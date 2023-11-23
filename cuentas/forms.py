@@ -52,9 +52,10 @@ class SalonForm(forms.ModelForm):
 
 class AgregarEstudianteForm(forms.Form):
     estudiantes = forms.ModelMultipleChoiceField(
-        queryset=CustomUser.objects.all(),
+        queryset=CustomUser.objects.filter(role='STUDENT'),
         widget=forms.CheckboxSelectMultiple
     )
+
 
 class UserProfileForm(forms.ModelForm):
     ICON_CHOICES = [

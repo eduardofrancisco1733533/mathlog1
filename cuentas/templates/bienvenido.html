@@ -64,7 +64,6 @@
                 <h2>Bienvenido, {{ username }}</h2>
                 <p>Elige una de las siguientes opciones para continuar:</p>
                 {% if request.user.is_authenticated %}
-                    <a href="{% url 'drag_drop_view' %}" class="section-btn btn-primary">Test dragDrop</a>
                     <a href="{% url 'profile' %}" class="section-btn btn-secondary">Ir a mi Perfil</a>
                     <a href="{% url 'actividades_estudiante' %}" class="section-btn btn-actividades">Actividades del Estudiante</a>
                     <a href="{% url 'logout' %}" class="section-btn btn-danger">Cerrar Sesión</a>                  

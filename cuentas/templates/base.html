@@ -22,7 +22,6 @@
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 {% if user.is_authenticated %}
                 <!-- Depuración: imprime el rol en la página para verificar -->
-                <p>Rol:   {{ user.role }}</p>
                 {% if user.role == 'TEACHER' %}
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="{% url 'crear_salon' %}">Crear clase</a>
